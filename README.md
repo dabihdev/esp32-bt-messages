@@ -7,6 +7,7 @@ COMMUNICATE WITH SMARTPHONES VIA BLUETOOTH.
 ## Example video
 
 Board used here: ESP32-8048S070C.
+
 To write and receive messages on my smartphone I used the Serial Bluetooth Application available on Google Play.
 
 [![Example Video](./images/logo.png)](https://youtube.com/shorts/x3t7jnpMXW4)
