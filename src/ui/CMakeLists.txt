@@ -1,0 +1,14 @@
+SET(SOURCES screens/ui_spashScreen.c
+    screens/ui_mainScreen.c
+    ui.c
+    components/ui_comp_hook.c
+    ui_helpers.c
+    ui_events.c
+    images/ui_img_splashscreen_png.c
+    images/ui_img_mainscreen_png.c
+    fonts/ui_font_arialrounded20.c
+    fonts/ui_font_arialrounded28.c
+    fonts/ui_font_arialrounded35.c
+    fonts/ui_font_arialrounded45.c)
+
+add_library(ui ${SOURCES})

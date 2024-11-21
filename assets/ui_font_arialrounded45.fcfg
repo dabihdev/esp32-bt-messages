@@ -1,0 +1,16 @@
+{
+  "codename": "arialrounded45",
+  "ttf_path": "\\assets\\ARLRDBD.TTF",
+  "bin_path": "\\assets\\ui_font_arialrounded45.bin",
+  "c_path": "\\assets\\ui_font_arialrounded45.c",
+  "cfg_path": "\\assets\\ui_font_arialrounded45.fcfg",
+  "size": 45,
+  "bpp": 1,
+  "letters": 0,
+  "ranges": [
+    "0x20-0x7f"
+  ],
+  "symbols": "",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}

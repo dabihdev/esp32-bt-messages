@@ -1,0 +1,157 @@
+#include <Arduino.h> // import Arduino framework
+#include <esp32_smartdisplay.h> // import ESP32 library
+#include <ui/ui.h> // import UI
+#include <BLESerial.h> // import BLE serial library
+#include <cstdlib> // c++ library for random number generation
+using std::string; // use c++ strings
+
+
+// Run this block to check if Bluetooth is present on device
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled!
+#endif
+
+
+// Global variables
+BLESerial<> SerialBLE; // initialize BLE serial object
+
+string message="";
+bool messageHasArrived = false;
+
+int randomNum = 0;
+int lastRandomNum = 0;
+
+
+
+// FUNCTIONS
+// Read message from smartphone
+void read_message_from_smartphone()
+{
+    char incomingChar = SerialBLE.read(); // store incoming char
+    if(incomingChar=='\n') // if end-of-message character is read
+    {
+        messageHasArrived = true;
+    }
+    else // else if another character is read
+    {
+        message += incomingChar; // put incoming byte into string
+    }
+}
+
+// Display message on screen
+void display_message_on_screen()
+{
+    // transform string to char array
+    char *msg = &message[0];
+
+    // print message to screen
+    lv_label_set_text(ui_lblMessageFromSmartphone, msg);
+}
+
+// When "SEND" button is clicked, send user message to smartphone
+void send_message_to_smartphone(lv_event_t * e)
+{
+	// get user message from text input
+    String userMessage = "";
+    userMessage += String(lv_textarea_get_text(ui_txtUserMessage));
+    userMessage += "\n"; // add 'newline' character to end message
+
+    // send message to smartphone
+    SerialBLE.print(userMessage);
+    SerialBLE.flush(); // without this, it won't work!
+
+    // clear text input
+    lv_textarea_set_text(ui_txtUserMessage, "");
+}
+
+// Parallel task
+void task1(void *pvParameters)
+{
+    while(1) // must run in an infinite loop
+    {
+        // wait 3 seconds
+        delay(3000);
+
+        // generate random number between 0 and 100
+        randomNum = rand() % 101;
+    }
+}
+
+void setup()
+{   
+    // Initialize serial connections
+    Serial.begin(115200);
+    SerialBLE.begin("ESP32test");
+
+    // Initialize secondary tasks
+    xTaskCreatePinnedToCore(
+        task1,     // Function to implement the task
+        "task1",   // Name of the task
+        1000,      // Stack size in words
+        NULL,      // Task input parameter
+        0,         // Priority of the task
+        NULL,      // Task handle.
+        0          // Core where the task should run
+    );
+
+    // Initialize display
+    smartdisplay_init();
+    smartdisplay_lcd_set_backlight(1.0); // set initial backlight
+
+    // Set display rotation
+    __attribute__((unused)) auto disp = lv_disp_get_default();
+    // lv_disp_set_rotation(disp, LV_DISP_ROT_180);
+
+    // Initialize UI
+    ui_init();
+}
+
+
+void loop()
+{
+    // Read message from smartphone
+    if(SerialBLE.available())
+    {
+        read_message_from_smartphone();
+    }
+
+    // If message has arrived...
+    if(messageHasArrived)
+    {
+        // ...perform operations based on the message input
+        if(message.find("backlight_20") != std::string::npos)
+        {
+            smartdisplay_lcd_set_backlight(0.2);
+        }
+        else if(message.find("backlight_50") != std::string::npos)
+        {
+            smartdisplay_lcd_set_backlight(0.5);
+        }
+        else if(message.find("backlight_100") != std::string::npos)
+        {
+            smartdisplay_lcd_set_backlight(1.0);
+        }
+        else
+        {
+            // display message on screen
+            display_message_on_screen();
+        }
+
+        
+        // go back to listn for new messages
+        messageHasArrived = false;
+
+        // clear message
+        message = "";    
+    }
+
+    // update value label
+    if(randomNum!=lastRandomNum)
+    {
+        lv_label_set_text_fmt(ui_timedValue, "%d", randomNum);
+    }
+    lastRandomNum=randomNum;
+
+    // LVGL timer handler (do not touch)
+    lv_timer_handler();
+}
