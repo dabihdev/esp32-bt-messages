@@ -13,5 +13,5 @@ To write and receive messages on my smartphone I used the Serial Bluetooth Appli
 [![Example Video](./images/logo.png)](https://youtube.com/shorts/x3t7jnpMXW4)
 
 ## Aknowledgment
-- I build this project starting from the [esp32-smartdisplay-demo project](https://github.com/rzeldent/esp32-smartdisplay-demo)
+- I built this project starting from the [esp32-smartdisplay-demo project](https://github.com/rzeldent/esp32-smartdisplay-demo)
 - I used the [senseshift arduino BLE serial](https://github.com/senseshift/arduino-ble-serial) for the BLE serial communication
